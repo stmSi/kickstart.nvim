@@ -632,11 +632,12 @@ require('lazy').setup({
         -- Disable "format_on_save lsp_fallback" for languages that don't
         -- have a well standardized coding style. You can add additional
         -- languages here or re-enable it for the disabled ones.
-        local disable_filetypes = { c = true, cpp = true }
-        return {
-          timeout_ms = 500,
-          lsp_fallback = not disable_filetypes[vim.bo[bufnr].filetype],
-        }
+        local disable_filetypes = { c = true, cpp = true, 'typescript', 'javascript' }
+        -- return {
+        --   timeout_ms = 500,
+        --   lsp_fallback = not disable_filetypes[vim.bo[bufnr].filetype],
+        -- }
+        return not vim.tbl_contains(disable_filetypes, vim.bo[bufnr].filetype)
       end,
       formatters_by_ft = {
         lua = { 'stylua' },
@@ -771,6 +772,11 @@ require('lazy').setup({
       -- You can configure highlights by doing something like:
       vim.cmd.hi 'Comment gui=none'
     end,
+    opts = function()
+      return {
+        transparent = true,
+      }
+    end,
   },
 
   -- Highlight todo, notes, etc in comments
@@ -856,7 +862,7 @@ require('lazy').setup({
         harpoon.ui:toggle_quick_menu(harpoon:list())
       end)
       vim.keymap.set('n', '<Leader>hm', function()
-        harpoon:list():append()
+        harpoon:list():add()
       end)
 
       -- Navigate to the marked files
@@ -905,6 +911,14 @@ require('lazy').setup({
     dependencies = {},
     config = function()
       vim.g.copilot_filetypes = { markdown = true, yaml = true }
+    end,
+  },
+  {
+    'iamcco/markdown-preview.nvim',
+    cmd = { 'MarkdownPreviewToggle', 'MarkdownPreview', 'MarkdownPreviewStop' },
+    ft = { 'markdown' },
+    build = function()
+      vim.fn['mkdp#util#install']()
     end,
   },
   -- The following two comments only work if you have downloaded the kickstart repo, not just copy pasted the
