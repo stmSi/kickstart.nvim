@@ -632,12 +632,14 @@ require('lazy').setup({
         -- Disable "format_on_save lsp_fallback" for languages that don't
         -- have a well standardized coding style. You can add additional
         -- languages here or re-enable it for the disabled ones.
-        local disable_filetypes = { c = true, cpp = true, 'typescript', 'javascript' }
-        -- return {
-        --   timeout_ms = 500,
-        --   lsp_fallback = not disable_filetypes[vim.bo[bufnr].filetype],
-        -- }
-        return not vim.tbl_contains(disable_filetypes, vim.bo[bufnr].filetype)
+        local disable_filetypes = { 'typescript', 'javascript', 'html' }
+        if vim.tbl_contains(disable_filetypes, vim.bo[bufnr].filetype) then
+          return
+        end
+        return {
+          timeout_ms = 500,
+          lsp_fallback = not disable_filetypes[vim.bo[bufnr].filetype],
+        }
       end,
       formatters_by_ft = {
         lua = { 'stylua' },
@@ -753,6 +755,22 @@ require('lazy').setup({
           { name = 'path' },
         },
       }
+
+      -- Disable nvim-cmp for TypeScript files on save
+      vim.api.nvim_create_autocmd('BufWritePre', {
+        pattern = { '*.ts', '*.tsx' },
+        callback = function()
+          cmp.setup.buffer { enabled = false }
+        end,
+      })
+
+      -- Re-enable nvim-cmp after saving
+      vim.api.nvim_create_autocmd('BufWritePost', {
+        pattern = { '*.ts', '*.tsx' },
+        callback = function()
+          cmp.setup.buffer { enabled = true }
+        end,
+      })
     end,
   },
 
@@ -911,6 +929,12 @@ require('lazy').setup({
     dependencies = {},
     config = function()
       vim.g.copilot_filetypes = { markdown = true, yaml = true }
+    end,
+  },
+  {
+    'norcalli/nvim-colorizer.lua',
+    config = function()
+      require('colorizer').setup()
     end,
   },
   {
