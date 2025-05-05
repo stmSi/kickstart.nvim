@@ -149,10 +149,10 @@ vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
 vim.opt.inccommand = 'split'
 
 -- Show which line your cursor is on
-vim.opt.cursorline = true
+vim.opt.cursorline = false
 
 -- Minimal number of screen lines to keep above and below the cursor.
-vim.opt.scrolloff = 10
+vim.opt.scrolloff = 8
 
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
@@ -219,7 +219,6 @@ if not vim.loop.fs_stat(lazypath) then
   vim.fn.system { 'git', 'clone', '--filter=blob:none', '--branch=stable', lazyrepo, lazypath }
 end ---@diagnostic disable-next-line: undefined-field
 vim.opt.rtp:prepend(lazypath)
-
 -- [[ Configure and install plugins ]]
 --
 --  To check the current status of your plugins, run
@@ -277,7 +276,7 @@ require('lazy').setup({
   -- normal autocommands events (`:help autocmd-events`).
   --
   -- Then, because we use the `config` key, the configuration only runs
-  -- after the plugin has been loaded:
+
   --  config = function() ... end
 
   { -- Useful plugin to show you pending keybinds.
@@ -354,11 +353,12 @@ require('lazy').setup({
         -- You can put your default mappings / updates / etc. in here
         --  All the info you're looking for is in `:help telescope.setup()`
         --
-        -- defaults = {
-        --   mappings = {
-        --     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
-        --   },
-        -- },
+        defaults = {
+          --   mappings = {
+          --     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
+          --   },
+          path_display = { 'tail' },
+        },
         -- pickers = {}
         extensions = {
           ['ui-select'] = {
@@ -753,6 +753,7 @@ require('lazy').setup({
           { name = 'nvim_lsp' },
           { name = 'luasnip' },
           { name = 'path' },
+          { name = 'cody' },
         },
       }
 
@@ -869,7 +870,7 @@ require('lazy').setup({
   },
   {
     'ThePrimeagen/harpoon',
-    branch = 'harpoon2',
+    branch = 'master',
     dependencies = { 'nvim-lua/plenary.nvim' },
     config = function()
       local harpoon = require 'harpoon'
@@ -943,6 +944,16 @@ require('lazy').setup({
     ft = { 'markdown' },
     build = function()
       vim.fn['mkdp#util#install']()
+    end,
+  },
+  {
+    'sourcegraph/sg.nvim',
+    dependencies = { 'nvim-lua/plenary.nvim' },
+
+    -- If you have a recent version of lazy.nvim, you don't need to add this!
+    build = 'nvim -l build/init.lua',
+    config = function()
+      require('sg').setup {}
     end,
   },
   -- The following two comments only work if you have downloaded the kickstart repo, not just copy pasted the
